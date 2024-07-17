@@ -20,12 +20,17 @@ func encryptMessage (message string) {
 	*/
 	for i:=0; i < charCountInMessage; i++ {
 		randomKey := GenerateRandomBinary()
+		hexValue, err := ConvertBinaryToHex(randomKey)
 
-		// Doing this to avoid additing space before the first cipher Key
-		if i == 0 {
-			cipherKeys += randomKey
-			} else {
-			cipherKeys += " " + randomKey
+		if err != nil {
+			fmt.Println("Error:", err)
+		} else {
+			// Doing this to avoid additing space before the first cipher Key
+			if i == 0 {
+				cipherKeys += hexValue
+				} else {
+					cipherKeys += " " + hexValue
+			}
 		}
 
 		// Gets the corresponding ascii value of a current character
@@ -37,11 +42,17 @@ func encryptMessage (message string) {
 
 		if err != nil {
 			fmt.Println("Error:", err)
-		} else {
-			if i == 0 {
-				cipherTexts += xorResult
-				} else {
-				cipherTexts += " " + xorResult
+			} else {
+			// convert binary to hex
+			hexValue, err := ConvertBinaryToHex(xorResult)
+			if err != nil {
+				fmt.Println("Error:", err)
+			} else {
+				if i == 0 {
+					cipherTexts += hexValue
+					} else {
+					cipherTexts += " " + hexValue
+				}
 			}
 		}
 	}
@@ -54,26 +65,35 @@ func decryptMessage(cipherText, cipherKey string) {
 	// stores the decrypted message
 	var message string
 
-	// Split the data string into individual binary strings
+	// Split the data string into individual hex strings
 	cipherTextAsArray := strings.Split(cipherText, " ")
 	cipherKeyAsArray := strings.Split(cipherKey, " ")
 
 	for i:=0; i<len(cipherTextAsArray); i++ {
-		xorResult, err := FindXOR(cipherKeyAsArray[i], cipherTextAsArray[i])
+		// convert the current hex values for text and key into binary
+		TextInBinaryFormat, textErr := ConvertHexToBinary(cipherTextAsArray[i])
+		KeyInBinaryFormat, keyErr := ConvertHexToBinary(cipherKeyAsArray[i])
 
-		if err != nil {
-			fmt.Println("Error:", err)
+		if textErr != nil && keyErr != nil {
+			fmt.Println("Error:", textErr)	
 		} else {
-			// convert the bitwise(xor) result to whole number
-			number, err := strconv.ParseUint(xorResult, 2, 8)
+			xorResult, err := FindXOR(KeyInBinaryFormat, TextInBinaryFormat)
+	
 			if err != nil {
 				fmt.Println("Error:", err)
 			} else {
-				// get the corresponding ascii character
-				char := rune(number)
-				message += string(char)
+				// convert the bitwise(xor) result to whole number
+				number, err := strconv.ParseUint(xorResult, 2, 8)
+				if err != nil {
+					fmt.Println("Error:", err)
+				} else {
+					// get the corresponding ascii character
+					char := rune(number)
+					message += string(char)
+				}
 			}
 		}
+
 	}
 	fmt.Println("Message Decrypted:")
 	fmt.Println("message =>",message)
@@ -85,8 +105,8 @@ func main() {
 
 	fmt.Println("-------------------------------------")
 
-	// Decrypting a message using the secret key and encrypted message (both in binary format)
-	cipherText := "10000000 01101111 11101110 01101010 10101011 10101001 01100111 00011100 00111001 00010000 10111111 11111110 00010100"
-	cipherKey := "11001000 00101010 10100010 00100110 11100100 10000101 01000111 01001011 01110110 01000010 11110011 10111010 00110101"
+	// Decrypting a message using the secret key and encrypted message (both in hex format)
+	cipherText := "EE E3 9 A3 56 7 D6 5C 52 60 12 93 11"
+	cipherKey := "A6 A6 45 EF 19 2B F6 B 1D 32 5E D7 30"
 	decryptMessage(cipherText, cipherKey)
 }

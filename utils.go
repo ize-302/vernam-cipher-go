@@ -32,3 +32,27 @@ func FindXOR(bin1, bin2 string) (string, error) {
 	}
 	return result, nil
 }
+
+// ConvertBinaryToHex converts a binary string to a hexadecimal string.
+func ConvertBinaryToHex(binaryString string) (string, error) {
+	// Convert the binary string to an integer
+	number, err := strconv.ParseUint(binaryString, 2, 64)
+	if err != nil {
+		return "", err
+	}
+	// Convert the integer to a hexadecimal string
+	hexString := fmt.Sprintf("%X", number)
+	return hexString, nil
+}
+
+// ConvertHexToBinary converts a hexadecimal string to a binary string.
+func ConvertHexToBinary(hexString string) (string, error) {
+	// Convert the hexadecimal string to an integer
+	number, err := strconv.ParseUint(hexString, 16, 64)
+	if err != nil {
+			return "", err
+	}
+	// Convert the integer to a binary string
+	binaryString := fmt.Sprintf("%08b", number)
+	return binaryString, nil
+}
